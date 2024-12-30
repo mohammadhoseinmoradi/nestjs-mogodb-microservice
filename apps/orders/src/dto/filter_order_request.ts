@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsPositive } from 'class-validator';
 
 export class FilterOrdersDto {
   @IsOptional()
@@ -6,13 +6,11 @@ export class FilterOrdersDto {
   customer?: string;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsPositive()
   amountMin?: number;
 
   @IsOptional()
-  @IsNumber()
-  @Max(0)
+  @IsPositive()
   amountMax?: number;
 
   @IsOptional()

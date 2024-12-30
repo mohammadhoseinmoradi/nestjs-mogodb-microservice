@@ -73,6 +73,16 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     return this.model.find(filterQuery, {}, { lean: true });
   }
 
+  async aggregate(pipeline: any[]): Promise<any[]> {
+    try {
+      const result = await this.model.aggregate(pipeline);
+      return result;
+    } catch (error) {
+      this.logger.error('Error occurred during aggregation', error);
+      throw error;
+    }
+  }
+
   async startTransaction() {
     const session = await this.connection.startSession();
     session.startTransaction();

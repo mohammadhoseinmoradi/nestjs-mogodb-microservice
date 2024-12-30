@@ -12,6 +12,10 @@ export class OrdersController {
  async createOrder(@Body() request: CreateOrderRequest){
   return this.ordersService.createOrder(request);
  }
+ @Get()
+ async getOrderByQueryFilter(@Query() filterOrdersDto:FilterOrdersDto){
+  return this.ordersService.getFilterOrders(filterOrdersDto);
+ }
 
  @Get()
  async getOrders(){
@@ -23,9 +27,6 @@ export class OrdersController {
   return this.ordersService.getOrderById(id);
  }
 
- @Get()
- async getOrderByQueryFilter(@Query() filterOrdersDto:FilterOrdersDto){
-  return this.ordersService.getFilterOrders(filterOrdersDto);
- }
+
 
 }

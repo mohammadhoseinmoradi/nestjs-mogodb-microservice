@@ -6,12 +6,15 @@ import { BILLING_SERVICE } from './constants/service';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { Order } from './schemas/order.schema';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { RmqService } from '@app/common';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly orderRepository: OrdersRepository,
     @Inject(BILLING_SERVICE) private billingClient: ClientProxy,
+    private readonly rmqService: RmqService,
   ) {}
   async createOrder(request: CreateOrderRequest) {
     const session = await this.orderRepository.startTransaction();
@@ -30,7 +33,7 @@ export class OrdersService {
   }
 
   async getOrderById(id: string) {
-    return this.orderRepository.findOne({ where: { id } });
+    return this.orderRepository.findOne({ _id: id });
   }
 
   async getOrders() {
@@ -68,5 +71,39 @@ export class OrdersService {
       }
     }
     return this.orderRepository.find(query);
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async generateDailyReport() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const salesData = await this.orderRepository.aggregate([
+      { $match: { date: { $gte: today, $lt: tomorrow } } },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.sku',
+          totalQuantity: { $sum: '$items.qt' },
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const report = {
+      totalAmountSales: salesData.reduce(
+        (sum, item) => sum + item.totalAmount,
+        0,
+      ),
+      salesSummary: salesData.map((item) => ({
+        sku: item.id,
+        totalQuantity: item.totalQuantity,
+      })),
+    };
+
+    await this.rmqService.sendMessage('daily_sales_report', report);
+    return { message: 'گزارش روزانه ارسال شد' };
   }
 }
