@@ -32,11 +32,13 @@ services:
       - mongodb-arbiter
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - /usr/src/app/node_modules  
+
   rabbitmq:
     image: rabbitmq
     ports:
       - '5672:5672'
+      - '15672:15672'
       
 
   mongodb-primary:

@@ -30,7 +30,7 @@ import { BILLING_SERVICE } from './constants/service';
 export class OrdersModule {
   constructor(private configService: ConfigService) {
     // به این صورت می‌توانید مقدار MONGODB_URL را چاپ کنید
-    const mongodbUrl = this.configService.get<string>('MONGODB_URL');
+    const mongodbUrl = this.configService.get<string>('RABBIT_MQ_URL');
     console.log('MONGODB_URL: اینم ادرس توی فایل', mongodbUrl); // در کنسول چاپ می‌شود
   }
 }

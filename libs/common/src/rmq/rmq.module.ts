@@ -20,7 +20,7 @@ export class RmqModule {
             name,
             useFactory: (configService: ConfigService) => ({
               transport: Transport.RMQ,
-              opotins: {
+              options: {
                 urls: [configService.get<string>('RABBIT_MQ_URL')],
                 queue: configService.get<string>(`RABBIT_MQ_${name}_QUEUE`),
               },
