@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderRequest } from './dto/create-order.request';
+import { FilterOrdersDto } from './dto/filter_order_request';
 
-@Controller('orders')
+@Controller('invoices')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -16,4 +17,15 @@ export class OrdersController {
  async getOrders(){
   return this.ordersService.getOrders();
  }
+
+ @Get(':id')
+ async getOrderById(@Param('id') id: string){
+  return this.ordersService.getOrderById(id);
+ }
+
+ @Get()
+ async getOrderByQueryFilter(@Query() filterOrdersDto:FilterOrdersDto){
+  return this.ordersService.getFilterOrders(filterOrdersDto);
+ }
+
 }
